@@ -717,4 +717,4 @@ class inSpheroChipTilterCore(ComDevice):
 ### -------------------------------------------------------------------------------------------------------------------------------
 
     def IsTilting(self):
-        return not self.stopReading
+        return self.isTilting
