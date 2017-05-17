@@ -416,7 +416,7 @@ class inSpheroChipTilterCore(ComDevice):
                 # increment iteration counter
                 self.tilterEvents[event]['itercnt'][funcIdx] += 1
 
-                if self.tilterEvents[event]['itercnt'][funcIdx] == self.tilterEvents[event]['itercnt'][funcIdx]:
+                if self.tilterEvents[event]['itercnt'][funcIdx] == self.tilterEvents[event]['iter'][funcIdx]:
                     
                     # callback function
                     # if delay is zero, directly call callback
@@ -660,7 +660,7 @@ class inSpheroChipTilterCore(ComDevice):
         d = {}
         
         for k in self._parameters:
-            d.update({k: 0})
+            d.update({k: -1})
             
         return d
 
