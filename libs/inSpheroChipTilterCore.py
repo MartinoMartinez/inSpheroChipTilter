@@ -507,7 +507,7 @@ class inSpheroChipTilterCore(ComDevice):
             self.inMessageThread.start()
             
             # sleep for 25 ms to make sure no concurrent task tries to open the serial port for the tilter...
-            sleep(25e-3)
+            sleep(30e-3)
     
 ### -------------------------------------------------------------------------------------------------------------------------------
 
