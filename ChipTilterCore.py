@@ -26,11 +26,11 @@ except ImportError:
 
 
 
-class inSpheroChipTilterCore(CoreDevice):
+class ChipTilterCore(CoreDevice):
 
     # HEX addresses for certain commands
     # for check sum calculation address needs to be stored as two individual bytes
-    _addresses = {
+    __addresses__ = {
             'posAngle'   : ['0xFF', '0x00'],
             'negAngle'   : ['0xFF', '0x01'],
             'posMotion'  : ['0xFF', '0x02'],
@@ -50,7 +50,7 @@ class inSpheroChipTilterCore(CoreDevice):
     # NOTE: single bits should not touch other values (overwrite)
     #       use OR to set
     #       use ~ to unset
-    _statusBits = {
+    __statusBits__ = {
             'stopTilter'  : 0x00,
             'startTilter' : 0x01,
             'plusMinusOff': 0x00,
@@ -62,19 +62,19 @@ class inSpheroChipTilterCore(CoreDevice):
         }
         
     # parameters received from the tilter
-    _parameters = ['ID', 'A+', 'A-', 'M+', 'M-', 'm', 'P+', 'P-', 'p', 'H', 'T', 't', 'S']
+    __parameters__ = ['ID', 'A+', 'A-', 'M+', 'M-', 'm', 'P+', 'P-', 'p', 'H', 'T', 't', 'S']
 
     # supported events for callback functions
-    _supportedEvents = ['onPosDown', 'onPosUp', 'onNegDown', 'onNegUp', 'onPosWait', 'onNegWait']
+    __supportedEvents__ = ['onPosDown', 'onPosUp', 'onNegDown', 'onNegUp', 'onPosWait', 'onNegWait']
         
     # titler can be auto detected through this string
-    _usbName = 'USB Serial Port'
+    __usbName__ = 'USB Serial Port'
     
     # message for detection
-    _detMsg = 'Try to detect inSphero chip tilter...'
+    __detMsg__ = 'Try to detect inSphero chip tilter...'
     
     # define number for force writing
-    _numForces = 3
+    __numForces__ = 3
     
 ### -------------------------------------------------------------------------------------------------------------------------------
     
@@ -199,7 +199,7 @@ class inSpheroChipTilterCore(CoreDevice):
         
         stream = []
         
-        for key, address in self._addresses.items():
+        for key, address in self.__addresses__.items():
             # set following ones to 1 otherwise tilter will get crazy
             if key in ['posAngle', 'negAngle', 'posMotSec', 'negMotSec']:
                 stream.append( self.GenerateByteStream(address, 1) )
@@ -221,7 +221,7 @@ class inSpheroChipTilterCore(CoreDevice):
         success = True
         
         # write multiple time to force tilter to accept stream
-        for i in range(self._numForces):
+        for i in range(self.__numForces__):
             if not self.WriteStream(b):
                 success = False
                 break
@@ -377,7 +377,7 @@ class inSpheroChipTilterCore(CoreDevice):
 
     def ExtractParameters(self, msg):
         
-        for key in self._parameters:
+        for key in self.__parameters__:
             paramSet = msg.split(';')
             for param in paramSet:
                 if key in param:
@@ -386,7 +386,7 @@ class inSpheroChipTilterCore(CoreDevice):
                     try:
                         val = int(val)
                     except ValueError:
-                        self.logger.error('Could not extract number from %s' % param)
+                        self.logger.error('Could not extract number from %s' % val)
                     else:
                         self.currentParameterSet[key] = val
     
@@ -530,8 +530,8 @@ class inSpheroChipTilterCore(CoreDevice):
                     if key in ['posAngle', 'negAngle', 'posMotion', 'negMotion'] and val < 1:
                         val = 1
                         
-                    self.setup.update        ( {key: val}                )
-                    self.ConvertSetupToStream( self._addresses[key], val )
+                    self.setup.update        ( {key: val}                   )
+                    self.ConvertSetupToStream( self.__addresses__[key], val )
                     
             elif key in ['posPause', 'negPause', 'horPause', 'totTime']:
                 
@@ -544,8 +544,8 @@ class inSpheroChipTilterCore(CoreDevice):
                     self.setup.update( {'%sMin'%key: mins} )
                     self.setup.update( {'%sSec'%key: secs} )
                     
-                    self.ConvertSetupToStream( self._addresses['%sMin'%key], mins )
-                    self.ConvertSetupToStream( self._addresses['%sSec'%key], secs )
+                    self.ConvertSetupToStream( self.__addresses__['%sMin'%key], mins )
+                    self.ConvertSetupToStream( self.__addresses__['%sSec'%key], secs )
                     
                 elif key == 'totTime':
                     
@@ -554,8 +554,8 @@ class inSpheroChipTilterCore(CoreDevice):
                     self.setup.update( {'%sHrs'%key: hrs}  )
                     self.setup.update( {'%sMin'%key: mins} )
                     
-                    self.ConvertSetupToStream( self._addresses['%sHrs'%key], hrs  )
-                    self.ConvertSetupToStream( self._addresses['%sMin'%key], mins )
+                    self.ConvertSetupToStream( self.__addresses__['%sHrs'%key], hrs  )
+                    self.ConvertSetupToStream( self.__addresses__['%sMin'%key], mins )
     
 ### -------------------------------------------------------------------------------------------------------------------------------
 
@@ -571,7 +571,7 @@ class inSpheroChipTilterCore(CoreDevice):
 
     def GetParameter(self, key):
             
-        if key in self._parameters:
+        if key in self.__parameters__:
             return self.currentParameterSet[key]
         else:
             self.logger.error('%s not in parameter set' % key)
@@ -630,7 +630,7 @@ class inSpheroChipTilterCore(CoreDevice):
         
         d = {}
         
-        for k in self._supportedEvents:
+        for k in self.__supportedEvents__:
             d.update( {k: self.GetDefaultEventDescriptor()} )
             
         return d
@@ -646,7 +646,7 @@ class inSpheroChipTilterCore(CoreDevice):
         
         d = {}
         
-        for k in self._parameters:
+        for k in self.__parameters__:
             d.update({k: -1})
             
         return d
@@ -718,9 +718,9 @@ class inSpheroChipTilterCore(CoreDevice):
 if __name__ == '__main__':
     
     # create tilter object and initialize
-    tilter = inSpheroChipTilterCore()
+    tilter = ChipTilterCore()
     # suppress debug messages and only show info + error
-#    tilter = inSpheroChipTilterCore(logLevel='INFO')
+#    tilter = ChipTilterCore(logLevel='INFO')
     
     # reset tilter memory to default values
     tilter.ResetTilterSetup()
